@@ -22,7 +22,7 @@ This workshop is designed to enable AWS partners and their customers to build an
 
 ## Solution Architecture
 
-The Spring PetClinic sample application is designed to show how the Spring application framework can be used to build simple, but powerful database-oriented applications. It uses AWS RDS (MySQL) at the backend and it will demonstrate the use of Spring's core functionality. This architecture enable AWS partners and their customers to build and deploy containerized solutions on AWS using AWS App Runner,  AWS RDS and Spring framework. The Spring Framework is a collection of small, well-focused, loosely coupled Java frameworks that can be used independently or collectively to build industrial strength applications of many different types. 
+We shall build a solution using the Spring framework. This sample solution is designed to show how the Spring application framework can be used to build a simple, but powerful database-backed applications. It uses AWS RDS (MySQL) at the backend and it will demonstrate the use of Spring's core functionality. This architecture enable AWS partners and their customers to build and deploy containerized solutions on AWS using AWS App Runner,  AWS RDS and Spring framework. The Spring Framework is a collection of small, well-focused, loosely coupled Java frameworks that can be used independently or collectively to build industrial strength applications of many different types. 
 ![Architecture](images/Architecture.jpg)
 
 ## Prerequisites
