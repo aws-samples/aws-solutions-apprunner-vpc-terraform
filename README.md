@@ -25,6 +25,59 @@ This workshop is designed to enable AWS partners and their customers to build an
 We shall build a solution using the [Spring Framework](https://spring.io/projects/spring-framework). This sample solution is designed to show how the Spring application framework can be used to build a simple, but powerful database-backed applications. It uses AWS RDS (MySQL) at the backend and it will demonstrate the use of Spring's core functionality. This architecture enable AWS partners and their customers to build and deploy containerized solutions on AWS using AWS App Runner,  AWS RDS and Spring framework. The Spring Framework is a collection of small, well-focused, loosely coupled Java frameworks that can be used independently or collectively to build industrial strength applications of many different types. 
 ![Architecture](images/Architecture.jpg)
 
+Here are the key Terraform resources in the solution architecture.
+#### Security group
+```bash
+resource "aws_security_group" "db-sg" {
+  name        = "${var.stack}-db-sg"
+  description = "Access to the RDS instances from the VPC"
+  vpc_id      = aws_vpc.main.id
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "${var.stack}-db-sg"
+  }
+}
+```
+#### VPC connector
+```bash
+resource "aws_apprunner_vpc_connector" "connector" {
+  vpc_connector_name = "petclinic_vpc_connector"
+  subnets            = aws_subnet.private[*].id
+  security_groups    = [aws_security_group.db-sg.id]
+}
+```
+#### App Runner service
+```bash
+resource "aws_apprunner_service" "service" {
+  auto_scaling_configuration_arn = aws_apprunner_auto_scaling_configuration_version.auto-scaling-config.arn
+  service_name                   = "apprunner-petclinic"
+  source_configuration {
+    authentication_configuration {
+      access_role_arn = aws_iam_role.apprunner-service-role.arn
+    }
+  }
+  
+  network_configuration {
+    egress_configuration {
+      egress_type       = "VPC"
+      vpc_connector_arn = aws_apprunner_vpc_connector.connector.arn
+    }
+  }
+```
 ## Prerequisites
 
 Before you build the whole infrastructure, including your CI/CD pipeline, you will need to meet the following pre-requisites.
