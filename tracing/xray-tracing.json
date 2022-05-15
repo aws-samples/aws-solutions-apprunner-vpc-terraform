@@ -1,0 +1,12 @@
+{
+   "ObservabilityConfigurationName": "xray-tracing",
+   "Tags": [ 
+      { 
+         "Key": "Name",
+         "Value": "tracing"
+      }
+   ],
+   "TraceConfiguration": { 
+      "Vendor": "AWSXRAY"
+   }
+}

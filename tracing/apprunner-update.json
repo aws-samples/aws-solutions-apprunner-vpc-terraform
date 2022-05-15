@@ -1,0 +1,7 @@
+{
+   "ServiceArn": "arn:aws:apprunner:us-east-1:082037726969:service/apprunner-petclinic/8c1cd8a6a0b24b4dab59973248fb41b0",
+   "ObservabilityConfiguration": {  	
+       "ObservabilityConfigurationArn":"arn:aws:apprunner:us-east-1:082037726969:observabilityconfiguration/xray-tracing/1/9247ab3677a049a3ae653ede84781458",
+       "ObservabilityEnabled": true
+   }
+}
