@@ -281,9 +281,9 @@ Resources:
                 - while [   "$(aws ec2 describe-volumes-modifications     --volume-id $VOLUMEID     --filters Name=modification-state,Values="optimizing","completed"     --query "length(VolumesModifications)"    --output text)" != "1" ]; do sleep 1; done
                 - if [[ -e "/dev/xvda" && $(readlink -f /dev/xvda) = "/dev/xvda" ]];then    sudo growpart /dev/xvda 1;    STR=$(cat /etc/os-release);  SUB="VERSION_ID=\"2\"";  if [[ "$STR" == *"$SUB"* ]];  then    sudo xfs_growfs -d /;  else    sudo resize2fs /dev/xvda1;  fi; else  sudo growpart /dev/nvme0n1 1;  STR=$(cat /etc/os-release);  SUB="VERSION_ID=\"2\"";  if [[ "$STR" == *"$SUB"* ]];  then    sudo xfs_growfs -d /;  else    sudo resize2fs /dev/nvme0n1p1;  fi; fi
                 - !Sub "sudo su - ec2-user -c \"cd /home/ec2-user/environment && git clone ${ProjectRepositoryUrl}\""
-                - sudo su - ec2-user -c "cd /home/ec2-user/environment/aws-apprunner-terraform/petclinic && mvn package -Dmaven.test.skip=true"
+                - sudo su - ec2-user -c "cd /home/ec2-user/environment/aws-solutions-apprunner-vpc-terraform/petclinic && mvn package -Dmaven.test.skip=true"
                 - ACCOUNTID=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '"accountId"\s*:\s*"\K[^"]+')
-                - sed -i "s/yyyymmdd-identifier/$ACCOUNTID/" /home/ec2-user/environment/aws-apprunner-terraform/terraform/.auto.tfvars
+                - sed -i "s/yyyymmdd-identifier/$ACCOUNTID/" /home/ec2-user/environment/aws-solutions-apprunner-vpc-terraform/terraform/.auto.tfvars
                 - echo "Bootstrap completed with return code $?"
 
   AppRunnerC9BootstrapAssociation:
