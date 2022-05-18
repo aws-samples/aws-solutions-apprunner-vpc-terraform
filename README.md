@@ -198,7 +198,7 @@ git clone https://github.com/aws-samples/aws-solutions-apprunner-vpc-terraform.g
 ## Package the application using Apache Maven
 
 ```bash
-cd ~/environment/aws-apprunner-vpc-terraform/petclinic
+cd ~/environment/aws-solutions-apprunner-vpc-terraform/petclinic
 mvn package -Dmaven.test.skip=true
 ```
 The first time you execute this (or any other) command, Maven will need to download the plugins and related dependencies it needs to fulfill the command. From a clean installation of Maven, this can take some time (note: in the output above, it took almost five minutes). If you execute the command again, Maven will now have what it needs, so it won’t need to download anything new and will be able to execute the command quicker.
@@ -222,27 +222,6 @@ docker run -it --rm -p 8080:80  --name petclinic petclinic
 
 This will run the application using container port of 80 and will expose the application to host port of 8080. Click Preview from the top menu and then click “Preview Running Application.” It will open a browser displaying the Spring Petclinic application.
 
-## Push Petclinic docker image to Amazon ECR
-On your Cloud9 IDE open a new terminal and run the following inside the new terminal:
-
-```bash
-AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
-AWS_REGION=$(aws configure get region)
-
-export REPOSITORY_NAME=petclinic
-export IMAGE_NAME=petclinic
-
-aws ecr create-repository \
-    --repository-name $REPOSITORY_NAME \
-    --image-scanning-configuration scanOnPush=true \
-    --region $AWS_REGION
-	
-aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-
-docker tag $IMAGE_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
-docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
-
-```
 
 ## Build the infrastructure and pipeline
 
@@ -430,6 +409,29 @@ git push origin master
 ```
 
 As before, you can use the console to observe the progression of the change through the pipeline. Once done, verify that the application is working with the modified welcome message.
+
+## Deploy the Petclinic docker image to Amazon ECR
+On your Cloud9 IDE open a new terminal and run the following inside the new terminal:
+
+```bash
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+AWS_REGION=$(aws configure get region)
+
+export REPOSITORY_NAME=petclinic
+export IMAGE_NAME=petclinic
+
+aws ecr create-repository \
+    --repository-name $REPOSITORY_NAME \
+    --image-scanning-configuration scanOnPush=true \
+    --region $AWS_REGION
+	
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+docker tag $IMAGE_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
+docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
+
+```
+
 
 ## Tearing down the stack
 
