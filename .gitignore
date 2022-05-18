@@ -4,3 +4,6 @@ terraform.tfstate.backup
 .DS_Store
 petclinic/target/**
 terraform/.terraform.lock.hcl
+**/*.iml
+**/*/target
+.idea/

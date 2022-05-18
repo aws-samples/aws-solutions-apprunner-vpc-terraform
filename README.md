@@ -88,7 +88,7 @@ Ensure you have access to an AWS account, and a set of credentials with *Adminis
 
 ### Create an AWS Cloud9 environment
 
-Log into the AWS Management Console and search for Cloud9 services in the search bar. Click Cloud9 and create an AWS Cloud9 environment in the `us-east-1` region based on Amazon Linux 2. You can select the instance type as t2.micro.
+You can create a bootstrapped Cloud9 environment by deploying the [cloudformation/cloud9.yaml](cloudformation/cloud9.yaml) via the [CloudFormation console](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template). This will set up a new Cloud9 instance for you to use for the workshop. Note that it may take several minutes after the Cloud9 instance is available before it is completely configured.
 
 ### Configure the AWS Cloud9 environment
 
@@ -100,18 +100,7 @@ Launch the AWS Cloud9 IDE. Close the `Welcome` tab and open a new `Terminal` tab
 
 By default, Cloud9 manages temporary IAM credentials for you.  Unfortunately these are incomaptible with Terraform. To get around this you need to disable Cloud9 temporary credentials, and create and attach an IAM role for your Cloud9 instance.
 
-1. Follow [this deep link to create an IAM role with Administrator access.](https://console.aws.amazon.com/iam/home#/roles$new?step=review&commonUseCase=EC2%2BEC2&selectedUseCase=EC2&policies=arn:aws:iam::aws:policy%2FAdministratorAccess)
-1. Confirm that **AWS service** and **EC2** are selected, then click **Next** to view permissions.
-1. Confirm that **AdministratorAccess** is checked, then click **Next: Tags** to assign tags.
-1. Take the defaults, and click **Next: Review** to review.
-1. Enter **workshop-admin** for the Name, and click **Create role**.
-![createrole](images/createrole.png)
-1. Follow [this deep link to find your Cloud9 EC2 instance](https://console.aws.amazon.com/ec2/v2/home?#Instances:tag:Name=aws-cloud9-;sort=desc:launchTime)
-1. Select the instance, then choose **Actions / Security / Modify IAM Role**. Note: If you cannot find this menu option, then look under **Actions / Instance Settings / Modify IAM Role** instead.
-![c9instancerole](images/c9instancerole.png)
-1. Choose **workshop-admin** from the **IAM Role** drop down, and select **Save**
-![c9attachrole](images/c9attachrole.png)
-1. Return to your Cloud9 workspace and click the gear icon (in top right corner), or click to open a new tab and choose "Open Preferences"
+1. Open your [Cloud9 IDE](https://us-east-1.console.aws.amazon.com/cloud9/home?region=us-east-1#) and click the gear icon (in top right corner), or click to open a new tab and choose "Open Preferences"
 1. Select **AWS SETTINGS**
 1. Turn off **AWS managed temporary credentials**
 1. Close the Preferences tab
@@ -122,83 +111,13 @@ By default, Cloud9 manages temporary IAM credentials for you.  Unfortunately the
     ```
 1. As a final check, use the [GetCallerIdentity](https://docs.aws.amazon.com/cli/latest/reference/sts/get-caller-identity.html) CLI command to validate that the Cloud9 IDE is using the correct IAM role.
     ```bash
-    aws sts get-caller-identity --query Arn | grep workshop-admin -q && echo "IAM role valid" || echo "IAM role NOT valid"
+    aws sts get-caller-identity --query Arn | grep AppRunnerC9Role -q && echo "IAM role valid" || echo "IAM role NOT valid"
     ```
-
-#### Upgrade awscli
-To ensure you are running the latest version of AWS CLI, run the following command:
-
-```bash
-aws --version
-pip install awscli --upgrade --user
-```
-
-Run `aws configure` to configure your region. Leave all the other fields blank. You should have something like:
-
-```
-admin:~/environment $ aws configure
-AWS Access Key ID [None]: 
-AWS Secret Access Key [None]: 
-Default region name [None]: us-east-1
-Default output format [None]: 
-```
-
-#### Install Terraform
-
-Download and install Terraform:
-
-```bash
-sudo yum install -y yum-utils
-sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
-sudo yum -y install terraform
-```
-
-Verify that you can run Terraform:
-
-```bash
-terraform version
-```
-
-#### Install Apache Maven
-
-```bash
-cd /tmp
-sudo wget https://dlcdn.apache.org/maven/maven-3/3.8.5/binaries/apache-maven-3.8.5-bin.tar.gz
-sudo tar xf /tmp/apache-maven-*.tar.gz -C /opt
-sudo ln -s /opt/apache-maven-3.8.5 /opt/maven
-
-```
-#### Setup Apache Maven
-
-```bash
-sudo nano ~/.bashrc
-```
-Paste the following lines at the end of the file:
-
-```bash
-export M2_HOME=/opt/maven
-export MAVEN_HOME=/opt/maven
-export PATH=${M2_HOME}/bin:${PATH}
-```
-Verify the Apache Maven installation:
-
-```bash
-source ~/.bashrc
-mvn --version
-```
-#### Clone workshop repository
-
-Clone the source code repository:
-
-```bash
-cd ~/environment
-git clone https://github.com/aws-samples/aws-solutions-apprunner-vpc-terraform.git
-```
 
 ## Package the application using Apache Maven
 
 ```bash
-cd ~/environment/aws-apprunner-vpc-terraform/petclinic
+cd ~/environment/aws-solutions-apprunner-vpc-terraform/petclinic
 mvn package -Dmaven.test.skip=true
 ```
 The first time you execute this (or any other) command, Maven will need to download the plugins and related dependencies it needs to fulfill the command. From a clean installation of Maven, this can take some time (note: in the output above, it took almost five minutes). If you execute the command again, Maven will now have what it needs, so it won’t need to download anything new and will be able to execute the command quicker.
@@ -222,27 +141,6 @@ docker run -it --rm -p 8080:80  --name petclinic petclinic
 
 This will run the application using container port of 80 and will expose the application to host port of 8080. Click Preview from the top menu and then click “Preview Running Application.” It will open a browser displaying the Spring Petclinic application.
 
-## Push Petclinic docker image to Amazon ECR
-On your Cloud9 IDE open a new terminal and run the following inside the new terminal:
-
-```bash
-AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
-AWS_REGION=$(aws configure get region)
-
-export REPOSITORY_NAME=petclinic
-export IMAGE_NAME=petclinic
-
-aws ecr create-repository \
-    --repository-name $REPOSITORY_NAME \
-    --image-scanning-configuration scanOnPush=true \
-    --region $AWS_REGION
-	
-aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
-
-docker tag $IMAGE_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
-docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
-
-```
 
 ## Build the infrastructure and pipeline
 
@@ -262,7 +160,11 @@ aws ssm put-parameter --name /database/password  --value mysqlpassword --type Se
 cd ~/environment/aws-solutions-apprunner-vpc-terraform/terraform
 ```
 
-Edit `terraform.tfvars`, leave the `aws_profile` as `"default"`, and ensure `aws_region` matches your environment, and update `codebuild_cache_bucket_name` to replace the placeholder `yyyymmdd` with today's date, and the identifier `identifier` with something unique to you to create globally unique S3 bucket name. S3 bucket names can include numbers, lowercase letters and hyphens.
+Edit `.auto.tfvars`, leave the `aws_profile` as `"default"`, and ensure `aws_region` matches your environment, and that `codebuild_cache_bucket_name` has a value similar to `apprunner-cache-<your_account_id>>`. If not replace the placeholder `yyyymmdd-identifier`  with today's date and something unique to you to create globally unique S3 bucket name. S3 bucket names can include numbers, lowercase letters and hyphens.
+
+If you don't see the `.auto.tfvars` file you may have to select 'Show Hidden Files' option under the gear on the left hand side of the IDE.
+
+![show hidden files option](./images/showhiddenfiles.png)
 
 ### Build
 
@@ -303,12 +205,12 @@ Open the App Runner service configuration file [terraform/services.tf](terraform
       image_configuration {
         port = var.container_port
         runtime_environment_variables = {
-          "spring.datasource.username" : "${var.db_user}",
-          "spring.datasource.password" : "${data.aws_ssm_parameter.dbpassword.value}",
-          "spring.datasource.initialization-mode" : var.db_initialize_mode,
-          "spring.profiles.active" : var.db_profile,
-          "spring.datasource.url" : "jdbc:mysql://${aws_db_instance.db.address}/${var.db_name}"
-        }
+            "AWS_REGION" : "${var.aws_region}",
+            "SPRING_DATASOURCE_USERNAME" : "${var.db_user}",
+            "SPRING_DATASOURCE_INITIALIZATION_MODE" : var.db_initialize_mode,
+            "SPRING_PROFILES_ACTIVE" : var.db_profile,
+            "SPRING_DATASOURCE_URL" : "jdbc:mysql://${aws_db_instance.db.address}/${var.db_name}"
+         }
       }
       image_identifier      = "${data.aws_ecr_repository.image_repo.repository_url}:latest"
       image_repository_type = "ECR"
@@ -430,6 +332,29 @@ git push origin master
 ```
 
 As before, you can use the console to observe the progression of the change through the pipeline. Once done, verify that the application is working with the modified welcome message.
+
+## Deploy the Petclinic docker image to Amazon ECR
+On your Cloud9 IDE open a new terminal and run the following inside the new terminal:
+
+```bash
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+AWS_REGION=$(aws configure get region)
+
+export REPOSITORY_NAME=petclinic
+export IMAGE_NAME=petclinic
+
+aws ecr create-repository \
+    --repository-name $REPOSITORY_NAME \
+    --image-scanning-configuration scanOnPush=true \
+    --region $AWS_REGION
+	
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+docker tag $IMAGE_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
+docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_NAME
+
+```
+
 
 ## Tearing down the stack
 
