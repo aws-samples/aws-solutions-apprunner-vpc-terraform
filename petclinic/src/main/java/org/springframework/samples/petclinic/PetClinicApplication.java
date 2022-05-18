@@ -27,6 +27,7 @@ import org.springframework.core.Ordered;
 import org.springframework.web.filter.ForwardedHeaderFilter;
 
 import javax.servlet.DispatcherType;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -48,7 +49,7 @@ public class PetClinicApplication {
 		FilterRegistrationBean<ForwardedHeaderFilter> registration = new FilterRegistrationBean<>(filter);
 		registration.setDispatcherTypes(DispatcherType.REQUEST, DispatcherType.ASYNC, DispatcherType.ERROR);
 		registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
-		registration.setUrlPatterns(List.of("/*"));
+		registration.setUrlPatterns(Arrays.asList("/*"));
 		return registration;
 	}
 
