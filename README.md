@@ -160,7 +160,11 @@ aws ssm put-parameter --name /database/password  --value mysqlpassword --type Se
 cd ~/environment/aws-solutions-apprunner-vpc-terraform/terraform
 ```
 
-Edit `terraform.tfvars`, leave the `aws_profile` as `"default"`, and ensure `aws_region` matches your environment, and update `codebuild_cache_bucket_name` to replace the placeholder `yyyymmdd` with today's date, and the identifier `identifier` with something unique to you to create globally unique S3 bucket name. S3 bucket names can include numbers, lowercase letters and hyphens.
+Edit `.auto.tfvars`, leave the `aws_profile` as `"default"`, and ensure `aws_region` matches your environment, and that `codebuild_cache_bucket_name` has a value similar to `apprunner-cache-<your_account_id>>`. If not replace the placeholder `yyyymmdd-identifier`  with today's date and something unique to you to create globally unique S3 bucket name. S3 bucket names can include numbers, lowercase letters and hyphens.
+
+If you don't see the `.auto.tfvars` file you may have to select 'Show Hidden Files' option under the gear on the left hand side of the IDE.
+
+![show hidden files option](./images/showhiddenfiles.png)
 
 ### Build
 
