@@ -88,7 +88,13 @@ Ensure you have access to an AWS account, and a set of credentials with *Adminis
 
 ### Create an AWS Cloud9 environment
 
-You can create a bootstrapped Cloud9 environment by deploying the [cloudformation/cloud9.yaml](cloudformation/cloud9.yaml) via the [CloudFormation console](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template). This will set up a new Cloud9 instance for you to use for the workshop. Note that it may take several minutes after the Cloud9 instance is available before it is completely configured.
+You can create a bootstrapped Cloud9 environment by deploying the [cloudformation/cloud9.yaml](cloudformation/cloud9.yaml) via the [CloudFormation console](https://us-east-1.console.aws.amazon.com/cloudformation/home?region=us-east-1#/stacks/create/template). This will set up a new Cloud9 instance for you to use for the workshop. 
+
+Note that it may take several minutes after the Cloud9 instance is available before it is completely configured.
+
+You'll know the environment is ready when you see a file called Cloud9_Bootstrap_Status.md in your Cloud9 environment folder
+
+![Cloud9BoostrapStatus.png](./images/Cloud9BootstrapStatus.png)
 
 ### Configure the AWS Cloud9 environment
 

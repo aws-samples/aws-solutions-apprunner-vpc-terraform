@@ -126,7 +126,6 @@ Resources:
       Environment:
         Variables:
           CLOUD9_ENVIRONMENT: !Ref AppRunnerC9Instance
-          CLOUD9_OWNER_ROLE: !Sub arn:aws:iam::${AWS::AccountId}:role/TeamRole
       Runtime: python3.9
       MemorySize: 256
       Timeout: '600'
@@ -319,7 +318,6 @@ Resources:
       ImageId: amazonlinux-2-x86_64
       Name:
         Ref: AWS::StackName
-      OwnerArn: !Sub arn:aws:sts::${AWS::AccountId}:assumed-role/TeamRole/MasterKey
       Tags:
         -
           Key: SSMBootstrap
