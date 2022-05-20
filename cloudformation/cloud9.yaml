@@ -126,7 +126,6 @@ Resources:
       Environment:
         Variables:
           CLOUD9_ENVIRONMENT: !Ref AppRunnerC9Instance
-          CLOUD9_OWNER_ROLE: !Sub arn:aws:iam::${AWS::AccountId}:role/TeamRole
       Runtime: python3.9
       MemorySize: 256
       Timeout: '600'
@@ -283,7 +282,7 @@ Resources:
                 - sudo su - ec2-user -c "cd /home/ec2-user/environment/aws-solutions-apprunner-vpc-terraform/petclinic && mvn package -Dmaven.test.skip=true"
                 - ACCOUNTID=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '"accountId"\s*:\s*"\K[^"]+')
                 - sed -i "s/yyyymmdd-identifier/$ACCOUNTID/" /home/ec2-user/environment/aws-solutions-apprunner-vpc-terraform/terraform/.auto.tfvars
-                - echo "Bootstrap completed with return code $?"
+                - echo "Bootstrap completed with return code $?" > /home/ec2-user/environment/Cloud9_Bootstrap_Status.md
 
   AppRunnerC9BootstrapAssociation:
     Type: AWS::SSM::Association
@@ -319,7 +318,6 @@ Resources:
       ImageId: amazonlinux-2-x86_64
       Name:
         Ref: AWS::StackName
-      OwnerArn: !Sub arn:aws:sts::${AWS::AccountId}:assumed-role/TeamRole/MasterKey
       Tags:
         -
           Key: SSMBootstrap
