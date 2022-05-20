@@ -283,7 +283,7 @@ Resources:
                 - sudo su - ec2-user -c "cd /home/ec2-user/environment/aws-solutions-apprunner-vpc-terraform/petclinic && mvn package -Dmaven.test.skip=true"
                 - ACCOUNTID=$(curl -s http://169.254.169.254/latest/dynamic/instance-identity/document | grep -oP '"accountId"\s*:\s*"\K[^"]+')
                 - sed -i "s/yyyymmdd-identifier/$ACCOUNTID/" /home/ec2-user/environment/aws-solutions-apprunner-vpc-terraform/terraform/.auto.tfvars
-                - echo "Bootstrap completed with return code $?"
+                - echo "Bootstrap completed with return code $?" > /home/ec2-user/environment/Cloud9_Bootstrap_Status.md
 
   AppRunnerC9BootstrapAssociation:
     Type: AWS::SSM::Association
