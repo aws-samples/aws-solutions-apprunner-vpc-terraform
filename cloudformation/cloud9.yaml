@@ -5,8 +5,7 @@ Parameters:
   ProjectRepositoryUrl:
     Description: The source repository of this project
     Type: String
-    Default:  https://github.com/gdunkle/aws-solutions-apprunner-vpc-terraform.git
-    #https://github.com/aws-samples/aws-solutions-apprunner-vpc-terraform
+    Default:  https://github.com/aws-samples/aws-solutions-apprunner-vpc-terraform
   AppRunnerC9InstanceType:
     Description: App Runner Cloud9 instance type
     Type: String
